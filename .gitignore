@@ -1,0 +1,19 @@
+
+---
+
+### 🧾 `.gitignore`
+
+```gitignore
+# Python
+__pycache__/
+*.py[cod]
+
+# Virtual Environment
+myenv/
+
+# IDE/editor
+.vscode/
+
+# Data files (can remove if you want to keep them)
+all_clauses_with_embeddings.json
+output/

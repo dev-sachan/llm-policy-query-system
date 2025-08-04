@@ -1,0 +1,52 @@
+import parse as pr
+from everything import InsuranceClaimsProcessor
+
+def interactive_test():
+    """Interactive testing interface"""
+    
+    print("🏥 Insurance Claims Processor - Interactive Testing")
+    print("="*50)
+    
+    try:
+        processor = InsuranceClaimsProcessor()
+        print("✅ System initialized successfully\n")
+    except Exception as e:
+        print(f"❌ System initialization failed: {e}")
+        return
+    
+    while True:
+        print("\nEnter an insurance query (or 'quit' to exit):")
+        query = input("> ").strip()
+        
+        if query.lower() in ['quit', 'exit', 'q']:
+            break
+            
+        if not query:
+            continue
+            
+        try:
+            print(f"\n📝 Processing: {query}")
+            
+            # Parse query
+            parsed = pr.parse_query(query)
+            print(f"📊 Parsed Data: {parsed}")
+            
+            # Make decision
+            decision = processor.make_decision(parsed)
+            
+            print(f"\n🎯 DECISION: {decision['decision'].upper()}")
+            print(f"🎲 Confidence: {decision['confidence']:.2f}")
+            
+            if decision['justification']:
+                print(f"💭 Reason: {decision['justification'][0]}")
+                
+            if decision['clauses']:
+                print(f"📋 Relevant Clause: {decision['clauses'][0][:100]}...")
+                
+        except Exception as e:
+            print(f"❌ Error: {e}")
+    
+    print("👋 Testing session ended")
+
+if __name__ == "__main__":
+    interactive_test()
