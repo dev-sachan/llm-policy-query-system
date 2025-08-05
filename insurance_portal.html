@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Claims Processing Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-section, .output-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #4a5568;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .parsed-section, .decision-section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .parsed-section h3, .decision-section h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .parsed-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .parsed-label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .parsed-value {
+            color: #2d3748;
+            font-family: 'Courier New', monospace;
+        }
+
+        .decision-approved {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .decision-rejected {
+            border-left-color: #f56565;
+            background: #fffafa;
+        }
+
+        .decision-review {
+            border-left-color: #ed8936;
+            background: #fffbf0;
+        }
+
+        .decision-status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .status-approved {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-rejected {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-review {
+            background: #feebc8;
+            color: #7b341e;
+        }
+
+        .confidence-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f56565, #ed8936, #48bb78);
+            transition: width 0.6s ease;
+        }
+
+        .examples-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .example-queries {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .example-query {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-query:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .clauses-section {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .clause-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .example-queries {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Insurance Claims Processing Portal</h1>
+            <p>Test our AI-powered insurance claims analysis system</p>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2 class="section-title">📝 Enter Your Query</h2>
+                
+                <div class="form-group">
+                    <label for="query">Insurance Claim Query:</label>
+                    <textarea 
+                        id="query" 
+                        placeholder="Example: 46M from Mumbai with 6-month policy wants knee surgery coverage"
+                        rows="4"
+                    ></textarea>
+                </div>
+
+                <button class="btn" onclick="processQuery()">
+                    🔍 Analyze Claim
+                </button>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your claim...</p>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <h2 class="section-title">📊 Analysis Results</h2>
+                
+                <div class="parsed-section" id="parsedResults" style="display: none;">
+                    <h3>🔍 Parsed Information</h3>
+                    <div id="parsedContent"></div>
+                </div>
+
+                <div class="decision-section" id="decisionResults" style="display: none;">
+                    <h3>⚖️ Decision</h3>
+                    <div id="decisionContent"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="examples-section">
+            <h2 class="section-title">💡 Example Queries</h2>
+            <p>Click on any example below to test it:</p>
+            
+            <div class="example-queries">
+                <div class="example-query" onclick="useExample(this)">
+                    46M from Mumbai with 6-month policy wants knee surgery coverage
+                </div>
+                <div class="example-query" onclick="useExample(this)">
+                    25F, Delhi, 2-year policy, cardiac bypass procedure
+                </div>
+                <div class="example-query" onclick="useExample(this)">
+                    35 male, Bangalore, 3 months policy, wants hip replacement
+                </div>
+                <div class="example-query" onclick="useExample(this)">
+                    Female age 45, Chennai, 1 year coverage, breast cancer treatment
+                </div>
+                <div class="example-query" onclick="useExample(this)">
+                    28M Pune, 8-month policy, dental surgery claim
+                </div>
+                <div class="example-query" onclick="useExample(this)">
+                    52F Hyderabad, 2.5 years policy, kidney transplant procedure
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const mockClauses = [
+            {
+                "text": "Knee replacement surgery is covered after 12 months waiting period from policy inception",
+                "embedding": []
+            },
+            {
+                "text": "Cardiac procedures including bypass surgery are covered with 6 months waiting period",
+                "embedding": []
+            },
+            {
+                "text": "Hip replacement surgery requires 18 months waiting period",
+                "embedding": []
+            },
+            {
+                "text": "Cancer treatment is covered immediately with no waiting period",
+                "embedding": []
+            },
+            {
+                "text": "Dental surgery is not covered under this policy",
+                "embedding": []
+            },
+            {
+                "text": "Organ transplant procedures are covered after 24 months waiting period",
+                "embedding": []
+            }
+        ];
+
+        function parseQuery(query) {
+            const parsed = {
+                raw_query: query,
+                age: null,
+                gender: null,
+                procedure: null,
+                location: null,
+                policy_duration_months: null
+            };
+
+            if (!query) return parsed;
+
+            const qLower = query.toLowerCase();
+
+            // Age and gender parsing
+            const ageGenderPatterns = [
+                /(\d{1,3})\s*[/\-,]?\s*([mf])(?![a-z])/,
+                /(\d{1,3})\s+(male|female)/,
+                /(male|female)\s+(\d{1,3})/,
+                /age[:\s]*(\d{1,3})[,\s]*(male|female)?/,
+                /(male|female)[,\s]*age[:\s]*(\d{1,3})/
+            ];
+
+            for (let i = 0; i < ageGenderPatterns.length; i++) {
+                const match = qLower.match(ageGenderPatterns[i]);
+                if (match) {
+                    const [, group1, group2] = match;
+                    
+                    if (i <= 2) {
+                        const age = parseInt(group1);
+                        if (age >= 0 && age <= 120) {
+                            parsed.age = age;
+                            if (group2) {
+                                parsed.gender = group2.toLowerCase().startsWith('m') ? 'Male' : 'Female';
+                            }
+                        }
+                    } else {
+                        if (group2 && !isNaN(parseInt(group2))) {
+                            const age = parseInt(group2);
+                            if (age >= 0 && age <= 120) {
+                                parsed.age = age;
+                                parsed.gender = group1.toLowerCase().startsWith('m') ? 'Male' : 'Female';
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+
+            // Policy duration parsing
+            const durationMatch = qLower.match(/(\d+(?:\.\d+)?)\s*[-]?\s*(months?|mo|years?|yrs?|days?)/);
+            if (durationMatch) {
+                const [, num, unit] = durationMatch;
+                const number = parseFloat(num);
+                if (unit.includes('year') || unit.includes('yr')) {
+                    parsed.policy_duration_months = Math.round(number * 12);
+                } else if (unit.includes('day')) {
+                    parsed.policy_duration_months = Math.max(1, Math.round(number / 30));
+                } else {
+                    parsed.policy_duration_months = Math.round(number);
+                }
+            }
+
+            // Location parsing
+            const cities = {
+                'mumbai': 'Mumbai', 'delhi': 'Delhi', 'bangalore': 'Bangalore',
+                'chennai': 'Chennai', 'kolkata': 'Kolkata', 'hyderabad': 'Hyderabad',
+                'pune': 'Pune', 'ahmedabad': 'Ahmedabad', 'jaipur': 'Jaipur',
+                'lucknow': 'Lucknow', 'kanpur': 'Kanpur', 'nagpur': 'Nagpur'
+            };
+
+            for (const [city, properName] of Object.entries(cities)) {
+                if (qLower.includes(city)) {
+                    parsed.location = properName;
+                    break;
+                }
+            }
+
+            // Procedure parsing
+            const procedures = [
+                'knee surgery', 'knee replacement', 'cardiac bypass', 'hip replacement',
+                'breast cancer treatment', 'cancer treatment', 'dental surgery', 'kidney transplant',
+                'heart surgery', 'surgery', 'transplant'
+            ];
+
+            for (const procedure of procedures) {
+                if (qLower.includes(procedure.toLowerCase())) {
+                    parsed.procedure = procedure.charAt(0).toUpperCase() + procedure.slice(1);
+                    break;
+                }
+            }
+
+            return parsed;
+        }
+
+        function makeDecision(parsed) {
+            if (!parsed.procedure) {
+                return {
+                    decision: "needs_review",
+                    justification: ["Procedure not clearly specified in the query"],
+                    clauses: [],
+                    confidence: 0.0
+                };
+            }
+
+            const procedure = parsed.procedure.toLowerCase();
+            const policyDuration = parsed.policy_duration_months || 0;
+
+            // Check waiting periods based on procedure
+            const waitingPeriods = {
+                'knee': 12,
+                'hip': 18,
+                'cardiac': 6,
+                'bypass': 6,
+                'transplant': 24,
+                'kidney': 24
+            };
+
+            let requiredWaiting = 0;
+            let matchedClause = null;
+
+            for (const [key, months] of Object.entries(waitingPeriods)) {
+                if (procedure.includes(key)) {
+                    requiredWaiting = months;
+                    matchedClause = mockClauses.find(c => 
+                        c.text.toLowerCase().includes(key) || 
+                        c.text.toLowerCase().includes(procedure)
+                    );
+                    break;
+                }
+            }
+
+            // Check for excluded procedures
+            if (procedure.includes('dental')) {
+                return {
+                    decision: "rejected",
+                    justification: [`Dental surgery is not covered under this policy`],
+                    clauses: [mockClauses.find(c => c.text.includes('Dental'))?.text || "Dental procedures excluded"],
+                    confidence: 0.95
+                };
+            }
+
+            // Check waiting period
+            if (requiredWaiting > 0 && policyDuration < requiredWaiting) {
+                return {
+                    decision: "rejected",
+                    justification: [
+                        `Policy active for ${policyDuration} months but requires at least ${requiredWaiting} months waiting period for '${parsed.procedure}'`
+                    ],
+                    clauses: [matchedClause?.text || `${parsed.procedure} requires ${requiredWaiting} months waiting period`],
+                    confidence: 0.9
+                };
+            }
+
+            // Special case for cancer - no waiting period
+            if (procedure.includes('cancer')) {
+                return {
+                    decision: "approved",
+                    justification: [`Cancer treatment is covered immediately with no waiting period`],
+                    clauses: [mockClauses.find(c => c.text.includes('Cancer'))?.text || "Cancer treatment covered"],
+                    confidence: 0.95
+                };
+            }
+
+            // If waiting period is met
+            if (matchedClause) {
+                return {
+                    decision: "approved",
+                    justification: [
+                        `Procedure '${parsed.procedure}' is covered and waiting period requirement is met`
+                    ],
+                    clauses: [matchedClause.text],
+                    confidence: 0.85
+                };
+            }
+
+            return {
+                decision: "needs_review",
+                justification: [`Procedure '${parsed.procedure}' requires manual review for coverage determination`],
+                clauses: [],
+                confidence: 0.3
+            };
+        }
+
+        function useExample(element) {
+            document.getElementById('query').value = element.textContent.trim();
+        }
+
+        function displayParsedResults(parsed) {
+            const content = document.getElementById('parsedContent');
+            content.innerHTML = '';
+
+            const fields = [
+                { label: 'Raw Query', value: parsed.raw_query },
+                { label: 'Age', value: parsed.age || 'Not specified' },
+                { label: 'Gender', value: parsed.gender || 'Not specified' },
+                { label: 'Procedure', value: parsed.procedure || 'Not specified' },
+                { label: 'Location', value: parsed.location || 'Not specified' },
+                { label: 'Policy Duration (months)', value: parsed.policy_duration_months || 'Not specified' }
+            ];
+
+            fields.forEach(field => {
+                const item = document.createElement('div');
+                item.className = 'parsed-item';
+                item.innerHTML = `
+                    <span class="parsed-label">${field.label}:</span>
+                    <span class="parsed-value">${field.value}</span>
+                `;
+                content.appendChild(item);
+            });
+
+            document.getElementById('parsedResults').style.display = 'block';
+        }
+
+        function displayDecisionResults(decision) {
+            const section = document.getElementById('decisionResults');
+            const content = document.getElementById('decisionContent');
+            
+            section.className = `decision-section decision-${decision.decision === 'approved' ? 'approved' : 
+                                 decision.decision === 'rejected' ? 'rejected' : 'review'}`;
+
+            const statusClass = decision.decision === 'approved' ? 'status-approved' : 
+                               decision.decision === 'rejected' ? 'status-rejected' : 'status-review';
+
+            const statusText = decision.decision === 'approved' ? '✅ Approved' : 
+                              decision.decision === 'rejected' ? '❌ Rejected' : '⏳ Needs Review';
+
+            content.innerHTML = `
+                <div class="decision-status ${statusClass}">${statusText}</div>
+                
+                <h4>Justification:</h4>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    ${decision.justification.map(just => `<li>${just}</li>`).join('')}
+                </ul>
+
+                <h4>Confidence Level:</h4>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: ${decision.confidence * 100}%"></div>
+                </div>
+                <p style="text-align: center; margin-top: 5px;">${Math.round(decision.confidence * 100)}%</p>
+
+                ${decision.clauses.length > 0 ? `
+                    <div class="clauses-section">
+                        <h4>📋 Relevant Policy Clauses:</h4>
+                        ${decision.clauses.map(clause => `
+                            <div class="clause-item">${clause}</div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+            `;
+
+            section.style.display = 'block';
+        }
+
+        function processQuery() {
+            const query = document.getElementById('query').value.trim();
+            
+            if (!query) {
+                alert('Please enter a query to analyze.');
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('parsedResults').style.display = 'none';
+            document.getElementById('decisionResults').style.display = 'none';
+
+            setTimeout(() => {
+                try {
+                    const parsed = parseQuery(query);
+                    displayParsedResults(parsed);
+
+                    const decision = makeDecision(parsed);
+                    displayDecisionResults(decision);
+
+                    document.getElementById('loading').style.display = 'none';
+                } catch (error) {
+                    console.error('Error processing query:', error);
+                    alert('An error occurred while processing your query. Please try again.');
+                    document.getElementById('loading').style.display = 'none';
+                }
+            }, 1500);
+        }
+
+        document.getElementById('query').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                processQuery();
+            }
+        });
+    </script>
+</body>
+</html>
